@@ -9,8 +9,8 @@ const App: React.FC = () => {
     <div className="App">
       <Slider
         useCustomArrows={true}
-        customLeftArrow={<div style={{ width: "100px" }}>LEFT</div>}
-        customRightArrow={<div style={{ width: "100px" }}>RIGHT</div>}
+        customLeftArrow={<div>LEFT</div>}
+        customRightArrow={<div>RIGHT</div>}
         singleItem={true}
         singleItemScroll={false}
         hoveredArrows={true}
@@ -21,6 +21,7 @@ const App: React.FC = () => {
         useDynamicWidth={true}
         sliderDots={true}
         sliderDotsPosition="top"
+        dotStyles={{ color: "red", margin: "20px 0" }}
       >
         <div>1</div>
         <div>2</div>

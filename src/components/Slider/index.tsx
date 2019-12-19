@@ -20,7 +20,7 @@ const SliderWrapper = styled.div`
   display: flex;
   flex-grow: 1;
   flex-shrink: 0;
-  transition: all 0.01s ease-in-out;
+  transition: all 0.1s ease-out;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   background: gray;
@@ -81,28 +81,37 @@ const CustomArrow = styled.div<{
   className?: string;
 }>``;
 
-const DotsWrapper = styled.div`
+const DotsWrapper = styled.div<{ margin?: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px 0;
+  margin: ${props => props.margin || "20px 0"};
 
   & > div {
     margin-left: 10px;
   }
 `;
 
-const Dot = styled.div<{ active?: boolean }>`
+const Dot = styled.div<{
+  active?: boolean;
+  dotColor?: string;
+  margin?: string;
+}>`
   height: 10px;
   width: 10px;
   border-radius: 50%;
-  border: 1px solid #3396ff;
-  background: ${props => (props.active ? "#3396FF" : "#fff")};
+  border: 1px solid ${props => props.dotColor || "#3396ff"};
+  background: ${props => (props.active ? props.dotColor || "#3396FF" : "#fff")};
 `;
 
 interface ArrowPositionUtilProps {
   leftArrow: { left: string | number; top: string | number };
   rightArrow: { right: string | number; top: string | number };
+}
+
+interface DotProps {
+  color?: string;
+  margin?: string;
 }
 
 interface SliderProps {
@@ -120,6 +129,7 @@ interface SliderProps {
   sliderDots?: boolean;
   sliderDotsPosition?: string;
   infiniteSlides?: boolean;
+  dotStyles?: DotProps;
 }
 
 export const Slider: FC<SliderProps> = ({
@@ -134,7 +144,8 @@ export const Slider: FC<SliderProps> = ({
   customLeftArrow,
   customRightArrow,
   sliderDots,
-  sliderDotsPosition
+  sliderDotsPosition,
+  dotStyles
 }) => {
   const [mousePoints, setMousePoints] = useState({ start: 0, end: 0 });
   const [diff, setDIff] = useState(0);
@@ -237,7 +248,11 @@ export const Slider: FC<SliderProps> = ({
   return (
     <>
       {sliderDots && sliderDotsPosition === "top" ? (
-        <Dots dotsActiveFlags={dotsActiveFlags} dotClickSlide={dotClickSlide} />
+        <Dots
+          dotStyles={dotStyles}
+          dotsActiveFlags={dotsActiveFlags}
+          dotClickSlide={dotClickSlide}
+        />
       ) : null}
       <SliderContainer display={configUtils.containerDisplay}>
         {useCustomArrows && customLeftArrow ? (
@@ -284,7 +299,11 @@ export const Slider: FC<SliderProps> = ({
         )}
       </SliderContainer>
       {sliderDots && sliderDotsPosition === "bottom" ? (
-        <Dots dotsActiveFlags={dotsActiveFlags} dotClickSlide={dotClickSlide} />
+        <Dots
+          dotStyles={dotStyles}
+          dotsActiveFlags={dotsActiveFlags}
+          dotClickSlide={dotClickSlide}
+        />
       ) : null}
     </>
   );
@@ -292,16 +311,23 @@ export const Slider: FC<SliderProps> = ({
 
 interface DotsProps {
   dotsActiveFlags: boolean[];
+  dotStyles?: DotProps;
   dotClickSlide: (dotIndex: number) => void;
 }
 
-const Dots: SFC<DotsProps> = ({ dotsActiveFlags, dotClickSlide }) => {
+const Dots: SFC<DotsProps> = ({
+  dotsActiveFlags,
+  dotClickSlide,
+  dotStyles
+}) => {
   return (
     <DotsWrapper>
       {dotsActiveFlags.map((activeFlag, dotIndex) => (
         <Dot
           key={dotIndex}
           active={activeFlag}
+          dotColor={dotStyles!.color}
+          margin={dotStyles!.margin}
           onClick={() => dotClickSlide(dotIndex)}
         />
       ))}
