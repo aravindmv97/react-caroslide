@@ -11,8 +11,7 @@ const App: React.FC = () => {
         useCustomArrows={true}
         customLeftArrow={<div style={{ width: "100px" }}>LEFT</div>}
         customRightArrow={<div style={{ width: "100px" }}>RIGHT</div>}
-        singleItem={false}
-        itemCount={3}
+        singleItem={true}
         singleItemScroll={false}
         hoveredArrows={true}
         arrowPositionUtils={{
@@ -21,7 +20,7 @@ const App: React.FC = () => {
         }}
         useDynamicWidth={true}
         sliderDots={true}
-        sliderDotsPosition="bottom"
+        sliderDotsPosition="top"
       >
         <div>1</div>
         <div>2</div>
