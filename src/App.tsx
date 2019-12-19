@@ -1,26 +1,37 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+
+import { Slider } from "./components/Slider";
+
+import "./App.css";
 
 const App: React.FC = () => {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Slider
+        useCustomArrows={true}
+        customLeftArrow={<div style={{ width: "100px" }}>LEFT</div>}
+        customRightArrow={<div style={{ width: "100px" }}>RIGHT</div>}
+        singleItem={false}
+        itemCount={3}
+        singleItemScroll={false}
+        hoveredArrows={true}
+        arrowPositionUtils={{
+          leftArrow: { left: 0, top: "50%" },
+          rightArrow: { right: 0, top: "50%" }
+        }}
+        useDynamicWidth={true}
+        sliderDots={true}
+        sliderDotsPosition="bottom"
+      >
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>4</div>
+        <div>5</div>
+        <div>6</div>
+      </Slider>
     </div>
   );
-}
+};
 
 export default App;
