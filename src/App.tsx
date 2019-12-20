@@ -22,6 +22,8 @@ const App: React.FC = () => {
         sliderDots={true}
         sliderDotsPosition="top"
         dotStyles={{ color: "red", margin: "20px 0" }}
+        useCustomDot={true}
+        customDot={{ inactive: <InactiveDot />, active: <ActiveDot /> }}
       >
         <div>1</div>
         <div>2</div>
@@ -31,6 +33,25 @@ const App: React.FC = () => {
         <div>6</div>
       </Slider>
     </div>
+  );
+};
+
+const ActiveDot = () => {
+  return (
+    <div style={{ height: "10px", width: "10px", background: "green" }}></div>
+  );
+};
+
+const InactiveDot = () => {
+  return (
+    <div
+      style={{
+        height: "10px",
+        width: "10px",
+        background: "white",
+        border: "1px solid #000"
+      }}
+    ></div>
   );
 };
 

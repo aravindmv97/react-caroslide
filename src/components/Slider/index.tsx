@@ -1,10 +1,11 @@
-import React, { FC, SFC, useState, useEffect } from "react";
+import React, { FC, SFC, useState, useEffect, Fragment } from "react";
 import styled from "styled-components";
 
 import { ImageWrapper } from "../Generics";
 
 import LeftArrow from "../images/leftArrow.png";
 import RightArrow from "../images/rightArrow.png";
+import { BooleanLiteralTypeAnnotation } from "@babel/types";
 
 const SliderContainer = styled.div<{ display: string }>`
   display: ${props => props.display || "flex"};
@@ -97,10 +98,11 @@ const Dot = styled.div<{
   dotColor?: string;
   margin?: string;
 }>`
+  cursor: pointer;
   height: 10px;
   width: 10px;
   border-radius: 50%;
-  border: 1px solid ${props => props.dotColor || "#3396ff"};
+  border: 1px solid ${props => props.dotColor || "#eee"};
   background: ${props => (props.active ? props.dotColor || "#3396FF" : "#fff")};
 `;
 
@@ -112,6 +114,11 @@ interface ArrowPositionUtilProps {
 interface DotProps {
   color?: string;
   margin?: string;
+}
+
+interface CustomDotProps {
+  inactive?: React.ReactElement;
+  active?: React.ReactElement;
 }
 
 interface SliderProps {
@@ -130,6 +137,8 @@ interface SliderProps {
   sliderDotsPosition?: string;
   infiniteSlides?: boolean;
   dotStyles?: DotProps;
+  customDot?: CustomDotProps;
+  useCustomDot?: boolean;
 }
 
 export const Slider: FC<SliderProps> = ({
@@ -145,7 +154,9 @@ export const Slider: FC<SliderProps> = ({
   customRightArrow,
   sliderDots,
   sliderDotsPosition,
-  dotStyles
+  dotStyles,
+  useCustomDot,
+  customDot
 }) => {
   const [mousePoints, setMousePoints] = useState({ start: 0, end: 0 });
   const [diff, setDIff] = useState(0);
@@ -243,6 +254,18 @@ export const Slider: FC<SliderProps> = ({
         });
       }
     }
+    if (
+      useCustomDot &&
+      typeof customDot!.inactive !== "undefined" &&
+      typeof customDot!.active !== "undefined"
+    ) {
+      let dots = document.getElementById("dotsWrapper")!.children;
+      Array.from(dots).forEach((dot, i) => {
+        dot.addEventListener("click", () => {
+          dotClickSlide(i);
+        });
+      });
+    }
   }, []);
 
   return (
@@ -252,6 +275,8 @@ export const Slider: FC<SliderProps> = ({
           dotStyles={dotStyles}
           dotsActiveFlags={dotsActiveFlags}
           dotClickSlide={dotClickSlide}
+          useCustomDot={useCustomDot}
+          customDot={customDot}
         />
       ) : null}
       <SliderContainer display={configUtils.containerDisplay}>
@@ -303,6 +328,8 @@ export const Slider: FC<SliderProps> = ({
           dotStyles={dotStyles}
           dotsActiveFlags={dotsActiveFlags}
           dotClickSlide={dotClickSlide}
+          useCustomDot={useCustomDot}
+          customDot={customDot}
         />
       ) : null}
     </>
@@ -313,24 +340,38 @@ interface DotsProps {
   dotsActiveFlags: boolean[];
   dotStyles?: DotProps;
   dotClickSlide: (dotIndex: number) => void;
+  useCustomDot?: boolean;
+  customDot?: CustomDotProps;
 }
 
 const Dots: SFC<DotsProps> = ({
   dotsActiveFlags,
   dotClickSlide,
-  dotStyles
+  dotStyles,
+  useCustomDot,
+  customDot
 }) => {
   return (
-    <DotsWrapper>
-      {dotsActiveFlags.map((activeFlag, dotIndex) => (
-        <Dot
-          key={dotIndex}
-          active={activeFlag}
-          dotColor={dotStyles!.color}
-          margin={dotStyles!.margin}
-          onClick={() => dotClickSlide(dotIndex)}
-        />
-      ))}
+    <DotsWrapper id="dotsWrapper">
+      {dotsActiveFlags.map((activeFlag, dotIndex) =>
+        useCustomDot &&
+        typeof customDot!.inactive !== "undefined" &&
+        typeof customDot!.active !== "undefined" ? (
+          activeFlag ? (
+            <Fragment key={dotIndex}>{customDot!.active}</Fragment>
+          ) : (
+            <Fragment key={dotIndex}>{customDot!.inactive}</Fragment>
+          )
+        ) : (
+          <Dot
+            key={dotIndex}
+            active={activeFlag}
+            dotColor={dotStyles!.color}
+            margin={dotStyles!.margin}
+            onClick={() => dotClickSlide(dotIndex)}
+          />
+        )
+      )}
     </DotsWrapper>
   );
 };
