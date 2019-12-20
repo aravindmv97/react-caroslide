@@ -8,20 +8,20 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <Slider
-        useCustomArrows={true}
+        useCustomArrows={false}
         customLeftArrow={<div>LEFT</div>}
         customRightArrow={<div>RIGHT</div>}
         singleItem={true}
         singleItemScroll={false}
         hoveredArrows={true}
-        arrowPositionUtils={{
-          leftArrow: { left: 0, top: "50%" },
-          rightArrow: { right: 0, top: "50%" }
+        hoveredArrowPositionUtils={{
+          leftArrow: { left: 0, top: "50%", right: "auto", bottom: "auto" },
+          rightArrow: { left: "auto", top: "10%", right: 0, bottom: "auto" }
         }}
         useDynamicWidth={true}
         sliderDots={true}
         sliderDotsPosition="top"
-        dotStyles={{ color: "red", margin: "20px 0" }}
+        dotStyles={{ color: "red" }}
         useCustomDot={true}
         customDot={{ inactive: <InactiveDot />, active: <ActiveDot /> }}
       >

@@ -1,11 +1,12 @@
 import React, { FC, SFC, useState, useEffect, Fragment } from "react";
 import styled from "styled-components";
 
-import { ImageWrapper } from "../Generics";
+import { Dots } from "../Dots";
 
 import LeftArrow from "../images/leftArrow.png";
 import RightArrow from "../images/rightArrow.png";
-import { BooleanLiteralTypeAnnotation } from "@babel/types";
+
+import { SliderProps } from "./Types.d";
 
 const SliderContainer = styled.div<{ display: string }>`
   display: ${props => props.display || "flex"};
@@ -53,93 +54,24 @@ const SliderItemWrapper = styled.div<{ width: string }>`
 
 const SliderItem = styled.div``;
 
-const LeftArrowIcon = styled(ImageWrapper)<{
+const LeftArrowIcon = styled.img<{
   position: string;
-  top?: string | number;
-  left?: string | number;
+  hoveredArrowPosition?: string;
 }>`
-  top: ${props => props.top || 0};
-  left: ${props => props.left || 0};
   cursor: pointer;
+  height: 20px;
+  width: 20px;
   position: ${props => props.position || "relative"};
-  background: #fff;
+  ${props =>
+    props.position === "absolute" ? props.hoveredArrowPosition : null};
 `;
 
-const RightArrowIcon = styled(ImageWrapper)<{
-  position: string;
-  top?: string | number;
-  right?: string | number;
-}>`
-  top: ${props => props.top || 0};
-  right: ${props => props.right || 0};
-  cursor: pointer;
-  position: ${props => props.position || "relative"};
-  background: #fff;
-`;
+const RightArrowIcon = styled(LeftArrowIcon)``;
 
 const CustomArrow = styled.div<{
   children: React.ReactElement;
   className?: string;
 }>``;
-
-const DotsWrapper = styled.div<{ margin?: string }>`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: ${props => props.margin || "20px 0"};
-
-  & > div {
-    margin-left: 10px;
-  }
-`;
-
-const Dot = styled.div<{
-  active?: boolean;
-  dotColor?: string;
-  margin?: string;
-}>`
-  cursor: pointer;
-  height: 10px;
-  width: 10px;
-  border-radius: 50%;
-  border: 1px solid ${props => props.dotColor || "#eee"};
-  background: ${props => (props.active ? props.dotColor || "#3396FF" : "#fff")};
-`;
-
-interface ArrowPositionUtilProps {
-  leftArrow: { left: string | number; top: string | number };
-  rightArrow: { right: string | number; top: string | number };
-}
-
-interface DotProps {
-  color?: string;
-  margin?: string;
-}
-
-interface CustomDotProps {
-  inactive?: React.ReactElement;
-  active?: React.ReactElement;
-}
-
-interface SliderProps {
-  children: React.ReactElement[];
-  singleItem?: boolean;
-  multipleItems?: boolean;
-  itemCount?: number;
-  singleItemScroll?: boolean;
-  useDynamicWidth?: boolean;
-  hoveredArrows?: boolean;
-  arrowPositionUtils?: ArrowPositionUtilProps | undefined;
-  useCustomArrows?: boolean;
-  customLeftArrow?: React.ReactElement;
-  customRightArrow?: React.ReactElement;
-  sliderDots?: boolean;
-  sliderDotsPosition?: string;
-  infiniteSlides?: boolean;
-  dotStyles?: DotProps;
-  customDot?: CustomDotProps;
-  useCustomDot?: boolean;
-}
 
 export const Slider: FC<SliderProps> = ({
   children,
@@ -148,7 +80,7 @@ export const Slider: FC<SliderProps> = ({
   singleItemScroll,
   useDynamicWidth,
   hoveredArrows,
-  arrowPositionUtils,
+  hoveredArrowPositionUtils,
   useCustomArrows,
   customLeftArrow,
   customRightArrow,
@@ -158,22 +90,15 @@ export const Slider: FC<SliderProps> = ({
   useCustomDot,
   customDot
 }) => {
-  const [mousePoints, setMousePoints] = useState({ start: 0, end: 0 });
-  const [diff, setDIff] = useState(0);
-  const [divHolded, setDivHolder] = useState(false);
-
   const configUtils = {
     itemWrapperWidth: singleItem
       ? "100%"
       : `${itemCount ? 100 / itemCount : 3}%`,
     containerDisplay: hoveredArrows ? "flex" : "grid",
-    arrowPositions: hoveredArrows ? "absolute" : "inherit"
+    arrowPositions: hoveredArrows ? "absolute" : "inherit",
+    leftArrowPosition: hoveredArrowPositionUtils!.leftArrow,
+    rightArrowPosition: hoveredArrowPositionUtils!.rightArrow
   };
-
-  const leftArrowTop = arrowPositionUtils!.leftArrow.top;
-  const leftArrowLeft = arrowPositionUtils!.leftArrow.left;
-  const rightArrowTop = arrowPositionUtils!.rightArrow.top;
-  const rightArrowRight = arrowPositionUtils!.rightArrow.right;
 
   const dotCount =
     children && singleItem
@@ -184,57 +109,50 @@ export const Slider: FC<SliderProps> = ({
   const [dotsActiveFlags, setDotsActiveFlags] = useState(
     new Array(dotCount).fill(true, 0, 1).fill(false, 1, dotCount)
   );
-  const [activeDotIndex, setActiveDotIndex] = useState(0);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
-  function left(selectedDotsDiff?: number): void {
+  function slideItems(slideDirection: string, selectedDotsDiff?: number): void {
+    let dotIndex = activeSlideIndex;
     let offsetWidth = document.getElementById(
       useDynamicWidth || !singleItemScroll ? "container" : "item"
     )!.offsetWidth;
-    document.getElementById("container")!.scrollLeft -= selectedDotsDiff
+    let containerDiv = document.getElementById("container");
+    let scrolableWidth = selectedDotsDiff
       ? offsetWidth * selectedDotsDiff
       : offsetWidth;
-  }
-
-  function right(selectedDotsDiff?: number): void {
-    let offsetWidth = document.getElementById(
-      useDynamicWidth || !singleItemScroll ? "container" : "item"
-    )!.offsetWidth;
-    document.getElementById("container")!.scrollLeft += selectedDotsDiff
-      ? offsetWidth * selectedDotsDiff
-      : offsetWidth;
-  }
-
-  function selectStartPos(e: React.MouseEvent<HTMLDivElement>) {
-    const points = { start: e.pageX, end: 0 };
-    setMousePoints(points);
-    setDivHolder(true);
-  }
-  function selectEndPosition(e: React.MouseEvent<HTMLDivElement>) {
-    const points = { start: mousePoints.start, end: e.pageX };
-    setMousePoints(points);
-    setDivHolder(false);
-  }
-
-  function moveMouse(e: React.MouseEvent<HTMLDivElement>): void {
-    if (divHolded) {
-      setDIff(mousePoints.start - e.pageX);
+    if (slideDirection === "left") {
+      containerDiv!.scrollLeft -= scrolableWidth;
+      setActiveSlideIndex(activeSlideIndex - 1);
+      dotIndex -= 1;
+    } else if (slideDirection === "right") {
+      containerDiv!.scrollLeft += scrolableWidth;
+      setActiveSlideIndex(activeSlideIndex + 1);
+      dotIndex += 1;
     }
+    setDotActiveInactive(dotIndex);
   }
 
-  function dotClickSlide(dotIndex: number): void {
-    if (activeDotIndex + 1 === dotIndex || activeDotIndex - 1 === dotIndex) {
-      activeDotIndex < dotIndex ? right() : left();
-    } else {
-      activeDotIndex < dotIndex
-        ? right(Math.abs(activeDotIndex - dotIndex))
-        : left(Math.abs(activeDotIndex - dotIndex));
-    }
+  function setDotActiveInactive(curSlideIndex: number): void {
     let dotFlags = dotsActiveFlags;
     dotFlags
       .fill(false, 0, dotsActiveFlags.length)
-      .fill(true, dotIndex, dotIndex + 1);
-    setActiveDotIndex(dotIndex);
+      .fill(true, curSlideIndex, curSlideIndex + 1);
     setDotsActiveFlags(dotFlags);
+  }
+
+  function dotClickSlide(dotIndex: number): void {
+    if (
+      activeSlideIndex + 1 === dotIndex ||
+      activeSlideIndex - 1 === dotIndex
+    ) {
+      activeSlideIndex < dotIndex ? slideItems("right") : slideItems("left");
+    } else {
+      activeSlideIndex < dotIndex
+        ? slideItems("right", Math.abs(activeSlideIndex - dotIndex))
+        : slideItems("left", Math.abs(activeSlideIndex - dotIndex));
+    }
+    setActiveSlideIndex(dotIndex);
+    setDotActiveInactive(dotIndex);
   }
 
   useEffect(() => {
@@ -242,7 +160,7 @@ export const Slider: FC<SliderProps> = ({
       let leftCustomArrowChild = document.getElementById("leftCustomArrow");
       if (leftCustomArrowChild && leftCustomArrowChild.childNodes) {
         leftCustomArrowChild.childNodes[0].addEventListener("click", () => {
-          left();
+          slideItems("left");
         });
       }
     }
@@ -250,21 +168,9 @@ export const Slider: FC<SliderProps> = ({
       let rightCustomArrowChild = document.getElementById("rightCustomArrow");
       if (rightCustomArrowChild && rightCustomArrowChild.childNodes) {
         rightCustomArrowChild.childNodes[0].addEventListener("click", () => {
-          right();
+          slideItems("right");
         });
       }
-    }
-    if (
-      useCustomDot &&
-      typeof customDot!.inactive !== "undefined" &&
-      typeof customDot!.active !== "undefined"
-    ) {
-      let dots = document.getElementById("dotsWrapper")!.children;
-      Array.from(dots).forEach((dot, i) => {
-        dot.addEventListener("click", () => {
-          dotClickSlide(i);
-        });
-      });
     }
   }, []);
 
@@ -285,20 +191,16 @@ export const Slider: FC<SliderProps> = ({
         ) : (
           <LeftArrowIcon
             src={LeftArrow}
-            height={"20px"}
-            width={"20px"}
-            onClickProps={right}
+            onClick={() => {
+              slideItems("left");
+            }}
             position={configUtils.arrowPositions}
-            top={leftArrowTop}
-            left={leftArrowLeft}
+            hoveredArrowPosition={JSON.stringify(configUtils.leftArrowPosition)
+              .replace(/,/g, ";")
+              .replace(/{}|"/g, "")}
           />
         )}
-        <SliderWrapper
-          id="container"
-          onMouseDown={selectStartPos}
-          onMouseUp={selectEndPosition}
-          onMouseMove={moveMouse}
-        >
+        <SliderWrapper id="container">
           {children.map((child, childId) => (
             <SliderItemWrapper
               id="item"
@@ -314,12 +216,13 @@ export const Slider: FC<SliderProps> = ({
         ) : (
           <RightArrowIcon
             src={RightArrow}
-            height={"20px"}
-            width={"20px"}
-            onClickProps={left}
+            onClick={() => {
+              slideItems("right");
+            }}
             position={configUtils.arrowPositions}
-            top={rightArrowTop}
-            right={rightArrowRight}
+            hoveredArrowPosition={JSON.stringify(configUtils.rightArrowPosition)
+              .replace(/,/g, ";")
+              .replace(/{}|"/g, "")}
           />
         )}
       </SliderContainer>
@@ -336,51 +239,5 @@ export const Slider: FC<SliderProps> = ({
   );
 };
 
-interface DotsProps {
-  dotsActiveFlags: boolean[];
-  dotStyles?: DotProps;
-  dotClickSlide: (dotIndex: number) => void;
-  useCustomDot?: boolean;
-  customDot?: CustomDotProps;
-}
-
-const Dots: SFC<DotsProps> = ({
-  dotsActiveFlags,
-  dotClickSlide,
-  dotStyles,
-  useCustomDot,
-  customDot
-}) => {
-  return (
-    <DotsWrapper id="dotsWrapper">
-      {dotsActiveFlags.map((activeFlag, dotIndex) =>
-        useCustomDot &&
-        typeof customDot!.inactive !== "undefined" &&
-        typeof customDot!.active !== "undefined" ? (
-          activeFlag ? (
-            <Fragment key={dotIndex}>{customDot!.active}</Fragment>
-          ) : (
-            <Fragment key={dotIndex}>{customDot!.inactive}</Fragment>
-          )
-        ) : (
-          <Dot
-            key={dotIndex}
-            active={activeFlag}
-            dotColor={dotStyles!.color}
-            margin={dotStyles!.margin}
-            onClick={() => dotClickSlide(dotIndex)}
-          />
-        )
-      )}
-    </DotsWrapper>
-  );
-};
-
-// Single **
-// Dynamic **
 // Highlight middle, first (1, 2)
-// Dynamic item widths
-
-// Arrows -> Corner + Hovered **
-// Dots -> Top, Bottom + Dynamic
-// Dynamic navigation components
+//
