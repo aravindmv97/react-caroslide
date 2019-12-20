@@ -1,9 +1,9 @@
 import React, { SFC } from "react";
 import styled from "styled-components";
 
-import { DotsProps } from "./Types.d";
+import { DotsProps, DotsWrapperProps, DotStyleProps } from "./Types.d";
 
-const DotsWrapper = styled.div<{ margin?: string }>`
+const DotsWrapper = styled.div<DotsWrapperProps>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,11 +14,7 @@ const DotsWrapper = styled.div<{ margin?: string }>`
   }
 `;
 
-const Dot = styled.div<{
-  active?: boolean;
-  dotColor?: string;
-  margin?: string;
-}>`
+const Dot = styled.div<DotStyleProps>`
   margin: ${props => props.margin || "0"};
   cursor: pointer;
   height: 10px;

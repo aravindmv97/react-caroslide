@@ -31,3 +31,22 @@ export interface SliderProps {
   customDot?: CustomDotProps;
   useCustomDot?: boolean;
 }
+
+// Style Props Types
+
+export interface SliderContainerProps {
+  display: string;
+}
+
+export interface SliderItemWrapperProps {
+  width: string;
+}
+export interface ArrowIconProps {
+  position: string;
+  hoveredArrowPosition?: string;
+}
+
+export interface CustomArrowProps {
+  children: React.ReactElement;
+  className?: string;
+}

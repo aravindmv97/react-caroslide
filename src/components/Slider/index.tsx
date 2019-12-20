@@ -6,9 +6,15 @@ import { Dots } from "../Dots";
 import LeftArrow from "../images/leftArrow.png";
 import RightArrow from "../images/rightArrow.png";
 
-import { SliderProps } from "./Types.d";
+import {
+  SliderProps,
+  SliderContainerProps,
+  SliderItemWrapperProps,
+  ArrowIconProps,
+  CustomArrowProps
+} from "./Types.d";
 
-const SliderContainer = styled.div<{ display: string }>`
+const SliderContainer = styled.div<SliderContainerProps>`
   display: ${props => props.display || "flex"};
   grid-template-columns: 0.1fr 4.8fr 0.1fr;
   width: 100%;
@@ -40,7 +46,7 @@ const SliderWrapper = styled.div`
   }
 `;
 
-const SliderItemWrapper = styled.div<{ width: string }>`
+const SliderItemWrapper = styled.div<SliderItemWrapperProps>`
   height: max-content;
   width: ${props => props.width || "100%"};
   display: flex;
@@ -54,10 +60,7 @@ const SliderItemWrapper = styled.div<{ width: string }>`
 
 const SliderItem = styled.div``;
 
-const LeftArrowIcon = styled.img<{
-  position: string;
-  hoveredArrowPosition?: string;
-}>`
+const LeftArrowIcon = styled.img<ArrowIconProps>`
   cursor: pointer;
   height: 20px;
   width: 20px;
@@ -68,10 +71,7 @@ const LeftArrowIcon = styled.img<{
 
 const RightArrowIcon = styled(LeftArrowIcon)``;
 
-const CustomArrow = styled.div<{
-  children: React.ReactElement;
-  className?: string;
-}>``;
+const CustomArrow = styled.div<CustomArrowProps>``;
 
 export const Slider: FC<SliderProps> = ({
   children,

@@ -7,3 +7,15 @@ export interface DotsProps {
   useCustomDot?: boolean;
   customDot?: CustomDotProps;
 }
+
+// Style Props Types
+
+export interface DotsWrapperProps {
+  margin?: string;
+}
+
+export interface DotStyleProps {
+  active?: boolean;
+  dotColor?: string;
+  margin?: string;
+}
