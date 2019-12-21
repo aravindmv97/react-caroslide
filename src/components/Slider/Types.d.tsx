@@ -40,6 +40,7 @@ export interface SliderContainerProps {
 
 export interface SliderItemWrapperProps {
   width: string;
+  bg?: string;
 }
 export interface ArrowIconProps {
   position: string;

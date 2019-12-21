@@ -19,7 +19,6 @@ const SliderContainer = styled.div<SliderContainerProps>`
   grid-template-columns: 0.1fr 4.8fr 0.1fr;
   width: 100%;
   height: 300px;
-  background: #eee;
   position: relative;
 `;
 
@@ -31,8 +30,6 @@ const SliderWrapper = styled.div`
   transition: all 0.1s ease-out;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  background: gray;
-  width: auto;
   cursor: pointer;
 
   & > div {
@@ -53,8 +50,6 @@ const SliderItemWrapper = styled.div<SliderItemWrapperProps>`
 
   & > div {
     width: 100%;
-    background: #eee;
-    border: 1px solid #333;
   }
 `;
 
@@ -78,7 +73,6 @@ export const Slider: FC<SliderProps> = ({
   singleItem,
   itemCount,
   singleItemScroll,
-  useDynamicWidth,
   hoveredArrows,
   hoveredArrowPositionUtils,
   useCustomArrows,
@@ -93,28 +87,30 @@ export const Slider: FC<SliderProps> = ({
   const configUtils = {
     itemWrapperWidth: singleItem
       ? "100%"
-      : `${itemCount ? 100 / itemCount : 3}%`,
+      : `${itemCount ? 100 / itemCount : "100"}%`,
     containerDisplay: hoveredArrows ? "flex" : "grid",
     arrowPositions: hoveredArrows ? "absolute" : "inherit",
     leftArrowPosition: hoveredArrowPositionUtils!.leftArrow,
-    rightArrowPosition: hoveredArrowPositionUtils!.rightArrow
+    rightArrowPosition: hoveredArrowPositionUtils!.rightArrow,
+    dotCount:
+      children && singleItem
+        ? children.length
+        : itemCount
+        ? Math.ceil(children.length / itemCount)
+        : children.length
   };
 
-  const dotCount =
-    children && singleItem
-      ? children.length
-      : itemCount
-      ? Math.ceil(children.length / itemCount)
-      : 1;
   const [dotsActiveFlags, setDotsActiveFlags] = useState(
-    new Array(dotCount).fill(true, 0, 1).fill(false, 1, dotCount)
+    new Array(configUtils.dotCount)
+      .fill(true, 0, 1)
+      .fill(false, 1, configUtils.dotCount)
   );
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   function slideItems(slideDirection: string, selectedDotsDiff?: number): void {
     let dotIndex = activeSlideIndex;
     let offsetWidth = document.getElementById(
-      useDynamicWidth || !singleItemScroll ? "container" : "item"
+      singleItemScroll ? "item" : "container"
     )!.offsetWidth;
     let containerDiv = document.getElementById("container");
     let scrolableWidth = selectedDotsDiff
@@ -124,7 +120,10 @@ export const Slider: FC<SliderProps> = ({
       containerDiv!.scrollLeft -= scrolableWidth;
       setActiveSlideIndex(activeSlideIndex - 1);
       dotIndex -= 1;
-    } else if (slideDirection === "right") {
+    } else if (
+      slideDirection === "right" &&
+      activeSlideIndex < children.length
+    ) {
       containerDiv!.scrollLeft += scrolableWidth;
       setActiveSlideIndex(activeSlideIndex + 1);
       dotIndex += 1;
@@ -138,12 +137,14 @@ export const Slider: FC<SliderProps> = ({
       .fill(false, 0, dotsActiveFlags.length)
       .fill(true, curSlideIndex, curSlideIndex + 1);
     setDotsActiveFlags(dotFlags);
+    setDotsActiveFlags(dotFlags);
   }
 
   function dotClickSlide(dotIndex: number): void {
     if (
-      activeSlideIndex + 1 === dotIndex ||
-      activeSlideIndex - 1 === dotIndex
+      (activeSlideIndex + 1 === dotIndex ||
+        activeSlideIndex - 1 === dotIndex) &&
+      !singleItemScroll
     ) {
       activeSlideIndex < dotIndex ? slideItems("right") : slideItems("left");
     } else {
@@ -238,6 +239,3 @@ export const Slider: FC<SliderProps> = ({
     </>
   );
 };
-
-// Highlight middle, first (1, 2)
-//

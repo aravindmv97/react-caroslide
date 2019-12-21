@@ -8,21 +8,16 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <Slider
-        useCustomArrows={false}
         customLeftArrow={<div>LEFT</div>}
-        customRightArrow={<div>RIGHT</div>}
-        singleItem={true}
-        singleItemScroll={false}
+        itemCount={3}
         hoveredArrows={true}
         hoveredArrowPositionUtils={{
           leftArrow: { left: 0, top: "50%", right: "auto", bottom: "auto" },
-          rightArrow: { left: "auto", top: "10%", right: 0, bottom: "auto" }
+          rightArrow: { left: "auto", top: "50%", right: 0, bottom: "auto" }
         }}
-        useDynamicWidth={true}
         sliderDots={true}
         sliderDotsPosition="top"
-        dotStyles={{ color: "red" }}
-        useCustomDot={true}
+        dotStyles={{ color: "blue" }}
         customDot={{ inactive: <InactiveDot />, active: <ActiveDot /> }}
       >
         <div>1</div>
@@ -31,6 +26,10 @@ const App: React.FC = () => {
         <div>4</div>
         <div>5</div>
         <div>6</div>
+        <div>7</div>
+        <div>8</div>
+        <div>9</div>
+        <div>10</div>
       </Slider>
     </div>
   );
