@@ -108,7 +108,7 @@ export const Slider: FC<SliderProps> = ({
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   function slideItems(slideDirection: string, selectedDotsDiff?: number): void {
-    let dotIndex = activeSlideIndex;
+    let slideIndex = activeSlideIndex;
     let offsetWidth = document.getElementById(
       singleItemScroll ? "item" : "container"
     )!.offsetWidth;
@@ -118,17 +118,23 @@ export const Slider: FC<SliderProps> = ({
       : offsetWidth;
     if (slideDirection === "left") {
       containerDiv!.scrollLeft -= scrolableWidth;
-      setActiveSlideIndex(activeSlideIndex - 1);
-      dotIndex -= 1;
+      setActiveSlideIndex(
+        activeSlideIndex - 1 >= 0 ? activeSlideIndex - 1 : activeSlideIndex
+      );
+      slideIndex -= 1;
     } else if (
       slideDirection === "right" &&
       activeSlideIndex < children.length
     ) {
       containerDiv!.scrollLeft += scrolableWidth;
-      setActiveSlideIndex(activeSlideIndex + 1);
-      dotIndex += 1;
+      setActiveSlideIndex(
+        activeSlideIndex + 1 < dotsActiveFlags.length
+          ? activeSlideIndex + 1
+          : activeSlideIndex
+      );
+      slideIndex += 1;
     }
-    setDotActiveInactive(dotIndex);
+    setDotActiveInactive(slideIndex);
   }
 
   function setDotActiveInactive(curSlideIndex: number): void {
